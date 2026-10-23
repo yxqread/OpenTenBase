@@ -95,7 +95,13 @@ log_message(const char* level, const char* message, const char* file, int line) 
     // Open log file
     std::ofstream log_file;
     log_file.open(log_filename, std::ios_base::app);
-    log_file << "[" << get_timestamp() << "] [" << timestamp << "] [" << level << "] [" << file << ":" << line << "] " << message << std::endl;
+    /*
+     * 原来这里是 "[" << get_timestamp() << "] [" << timestamp << "] ..."。
+     * get_timestamp() 返回的是 main 里设置一次的进程启动时刻，整轮运行都不会变，
+     * 于是每一行日志最前面那个方括号都是同一个值；紧跟其后的 timestamp 才是
+     * 这条日志真正的时间。启动时刻没有单独保留的价值，去掉这一列，只留事件时间。
+     */
+    log_file << "[" << timestamp << "] [" << level << "] [" << file << ":" << line << "] " << message << std::endl;
     log_file.close();
 
     // Only error logs output to terminal, and only output error content
